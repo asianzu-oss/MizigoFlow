@@ -32,5 +32,30 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// Delete user
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-module.exports = { getUsers, updateUser };
+    // Prevent admin from deleting themselves
+    if (parseInt(id) === req.user.id) {
+      return res.status(400).json({ message: 'You cannot delete your own account' });
+    }
+
+    const result = await pool.query(
+      'DELETE FROM users WHERE id=$1 RETURNING id',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { getUsers, updateUser, deleteUser };
