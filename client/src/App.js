@@ -10,6 +10,8 @@ import Orders from './pages/Orders';
 import Documents from './pages/Documents';
 import Users from './pages/Users';
 import Reports from './pages/Reports';
+import Vehicles from './pages/Vehicles';
+import Drivers from './pages/Drivers';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children, roles }) => {
@@ -30,6 +32,8 @@ function AppRoutes() {
       <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
       <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
       <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+      <Route path="/vehicles" element={<ProtectedRoute roles={['admin', 'manager', 'storekeeper']}><Vehicles /></ProtectedRoute>} />
+      <Route path="/drivers" element={<ProtectedRoute roles={['admin', 'manager', 'storekeeper']}><Drivers /></ProtectedRoute>} />
       <Route path="/reports" element={<ProtectedRoute roles={['admin', 'manager']}><Reports /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute roles={['admin']}><Users /></ProtectedRoute>} />
     </Routes>

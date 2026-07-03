@@ -5,12 +5,15 @@ import { useAuth } from '../../context/AuthContext';
 const navigation = [
   { name: 'Dashboard', path: '/', icon: '📊', roles: ['admin', 'manager', 'storekeeper', 'gate_guard'] },
   { name: 'Gate Management', path: '/gate', icon: '🚛', roles: ['admin', 'manager', 'gate_guard'] },
+  { name: 'Vehicles', path: '/vehicles', icon: '🚗', roles: ['admin', 'manager', 'storekeeper'] },
+  { name: 'Drivers', path: '/drivers', icon: '👤', roles: ['admin', 'manager', 'storekeeper'] },
   { name: 'Inventory', path: '/inventory', icon: '📦', roles: ['admin', 'manager', 'storekeeper'] },
   { name: 'Orders', path: '/orders', icon: '📋', roles: ['admin', 'manager', 'storekeeper'] },
   { name: 'Documents', path: '/documents', icon: '🖨️', roles: ['admin', 'manager', 'storekeeper'] },
   { name: 'Reports', path: '/reports', icon: '📈', roles: ['admin', 'manager'] },
   { name: 'Users', path: '/users', icon: '👥', roles: ['admin'] },
 ];
+
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
