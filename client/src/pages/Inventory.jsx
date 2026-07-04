@@ -245,8 +245,8 @@ const Inventory = () => {
           <div className="card overflow-x-auto">
             {loading ? (
               <p className="text-gray-400 text-sm">Loading...</p>
-            ) : products.length === 0 ? (
-              <p className="text-gray-400 text-sm">No products yet</p>
+            ) : filtered.length === 0 ? (
+              <p className="text-gray-400 text-sm">No products found</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -277,6 +277,14 @@ const Inventory = () => {
                           <span className="badge-success">In Stock</span>
                         )}
                       </td>
+                      <td className="py-3 px-2">
+  <button
+    onClick={() => setDeletingProduct(product)}
+    className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-lg hover:bg-red-200"
+  >
+    Delete
+  </button>
+</td>
                     </tr>
                   ))}
                 </tbody>
