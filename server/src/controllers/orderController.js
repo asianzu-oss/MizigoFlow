@@ -1,3 +1,4 @@
+const { sendOrderCompletedAlert } = require('../utils/sms');
 const pool = require('../config/db');
 
 // Get all orders
@@ -177,12 +178,21 @@ const confirmDispatch = async (req, res) => {
     }
 
     // Update order status to completed
+    // Update order status to completed
     await client.query(
       `UPDATE orders SET status='completed', completed_date=NOW() WHERE id=$1`,
       [id]
     );
 
     await client.query('COMMIT');
+
+    // Notify managers
+    const managers = await pool.query(
+      `SELECT phone_number FROM users WHERE role IN ('admin', 'manager') AND is_active = true`
+    );
+    for (const manager of managers.rows) {
+      await sendOrderCompletedAlert(manager.phone_number, id, 'dispatch');
+    }
 
     res.json({ message: 'Dispatch confirmed successfully' });
   } catch (error) {

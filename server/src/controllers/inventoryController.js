@@ -1,3 +1,4 @@
+const { sendLowStockAlert } = require('../utils/sms');
 const pool = require('../config/db');
 
 // Get all products
@@ -137,6 +138,23 @@ const receiveGoods = async (req, res) => {
          VALUES ($1, 'inbound', $2, $3, $4, $5)`,
         [product_id, quantity, order_id, req.user.id, notes]
       );
+      // Check if stock is low and alert managers
+      const updatedStock = await client.query(
+        `SELECT s.quantity, p.reorder_level, p.name 
+         FROM stock s JOIN products p ON s.product_id = p.id 
+         WHERE s.product_id = $1`,
+        [product_id]
+      );
+
+      const { quantity: newQty, reorder_level, name } = updatedStock.rows[0];
+      if (newQty <= reorder_level) {
+        const managers = await client.query(
+          `SELECT phone_number FROM users WHERE role IN ('admin', 'manager') AND is_active = true`
+        );
+        for (const manager of managers.rows) {
+          await sendLowStockAlert(manager.phone_number, name, newQty);
+        }
+      }
     }
 
     // Update order status if order_id provided

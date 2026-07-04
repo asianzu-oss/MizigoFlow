@@ -1,3 +1,4 @@
+const { sendCheckInAlert } = require('../utils/sms');
 const pool = require('../config/db');
 
 // Get all gate logs
@@ -66,6 +67,16 @@ const checkIn = async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7) RETURNING *`,
       [vehicle_id, driver_id, direction, purpose, order_id, req.user.id, notes]
     );
+
+    // Get manager phone numbers to notify
+    const managers = await pool.query(
+      `SELECT phone_number FROM users WHERE role IN ('admin', 'manager') AND is_active = true`
+    );
+
+    // Send SMS to all managers
+    for (const manager of managers.rows) {
+      await sendCheckInAlert(manager.phone_number, vehicle_id, driver_id);
+    }
 
     res.status(201).json({
       message: 'Vehicle checked in successfully',
