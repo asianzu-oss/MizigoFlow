@@ -194,4 +194,36 @@ const getLowStock = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, getProduct, createProduct, updateProduct, receiveGoods, getLowStock };
+// Delete product
+const deleteProduct = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+
+    await client.query('BEGIN');
+
+    // Delete stock movements first
+    await client.query('DELETE FROM stock_movements WHERE product_id=$1', [id]);
+
+    // Delete stock record
+    await client.query('DELETE FROM stock WHERE product_id=$1', [id]);
+
+    // Delete product
+    const result = await client.query('DELETE FROM products WHERE id=$1 RETURNING id', [id]);
+
+    if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    await client.query('COMMIT');
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Delete product error:', error);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    client.release();
+  }
+};
+module.exports = { getProducts, getProduct, createProduct, updateProduct, receiveGoods, getLowStock, deleteProduct };

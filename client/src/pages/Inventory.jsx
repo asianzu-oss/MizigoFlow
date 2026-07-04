@@ -12,6 +12,7 @@ const Inventory = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [search, setSearch] = useState('');
+  const [deletingProduct, setDeletingProduct] = useState(null);
 
   const [productForm, setProductForm] = useState({
     name: '',
@@ -95,6 +96,19 @@ const Inventory = () => {
     (p.bin_location && p.bin_location.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const handleDeleteProduct = async () => {
+  try {
+    setSubmitting(true);
+    await api.delete(`/inventory/${deletingProduct.id}`);
+    setMessage({ type: 'success', text: 'Product deleted successfully' });
+    setDeletingProduct(null);
+    fetchData();
+  } catch (error) {
+    setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to delete product' });
+  } finally {
+    setSubmitting(false);
+  }
+};
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -110,6 +124,23 @@ const Inventory = () => {
             </div>
           )}
 
+          {/* Delete Confirmation */}
+{deletingProduct && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-xl">
+      <h4 className="font-semibold text-gray-800 mb-2">Delete Product</h4>
+      <p className="text-sm text-gray-600 mb-4">
+        Are you sure you want to delete <strong>{deletingProduct.name}</strong>? This will also delete all stock records and movements for this product.
+      </p>
+      <div className="flex gap-3">
+        <button onClick={handleDeleteProduct} disabled={submitting} className="btn-danger">
+          {submitting ? 'Deleting...' : 'Yes, Delete'}
+        </button>
+        <button onClick={() => setDeletingProduct(null)} className="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
           {/* Low Stock Alert */}
           {lowStock.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
@@ -227,10 +258,11 @@ const Inventory = () => {
                     <th className="text-left py-3 px-2 text-gray-500 font-medium">Unit</th>
                     <th className="text-left py-3 px-2 text-gray-500 font-medium">Bin</th>
                     <th className="text-left py-3 px-2 text-gray-500 font-medium">Status</th>
+                    <th className="text-left py-3 px-2 text-gray-500 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
+                  {filtered.map((product) => (
                     <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-3 px-2 font-medium">{product.name}</td>
                       <td className="py-3 px-2 text-gray-600">{product.sku || '-'}</td>

@@ -23,8 +23,15 @@ const Login = () => {
       await login(fullName, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-    } finally {
+      console.error('Login error:', err);
+      if (err.response) {
+        setError(err.response.data?.message || 'Invalid credentials');
+      } else if (err.request) {
+        setError('Cannot connect to server. Please check your connection.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    }finally {
       setLoading(false);
     }
   };
