@@ -1,3 +1,4 @@
+import { isOnline, savePendingCheckIn, cacheVehicles, cacheDrivers } from '../utils/offline';
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
@@ -21,7 +22,7 @@ const Gate = () => {
     notes: '',
   });
 
-  const fetchData = async () => {
+const fetchData = async () => {
     try {
       const [logs, vehiclesRes, driversRes] = await Promise.all([
         api.get('/gates'),
@@ -31,6 +32,10 @@ const Gate = () => {
       setGateLogs(logs.data);
       setVehicles(vehiclesRes.data);
       setDrivers(driversRes.data);
+
+      // Cache for offline use
+      await cacheVehicles(vehiclesRes.data);
+      await cacheDrivers(driversRes.data);
     } catch (error) {
       console.error('Gate fetch error:', error);
     } finally {
@@ -49,11 +54,18 @@ const Gate = () => {
     }
     try {
       setSubmitting(true);
-      await api.post('/gates/checkin', checkInForm);
-      setMessage({ type: 'success', text: 'Vehicle checked in successfully' });
+
+      if (isOnline()) {
+        await api.post('/gates/checkin', checkInForm);
+        setMessage({ type: 'success', text: 'Vehicle checked in successfully' });
+      } else {
+        await savePendingCheckIn(checkInForm);
+        setMessage({ type: 'warning', text: 'Offline — check-in saved and will sync when back online' });
+      }
+
       setShowCheckIn(false);
       setCheckInForm({ vehicle_id: '', driver_id: '', direction: 'inbound', purpose: 'delivery', notes: '' });
-      fetchData();
+      if (isOnline()) fetchData();
     } catch (error) {
       setMessage({ type: 'error', text: error.response?.data?.message || 'Check in failed' });
     } finally {

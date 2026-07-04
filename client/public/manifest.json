@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "MizigoFlow",
+  "name": "MizigoFlow Warehouse Management",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,8 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1e3a5f",
+  "background_color": "#ffffff",
+  "description": "Warehouse Management System for Uganda",
+  "orientation": "portrait-primary"
 }
