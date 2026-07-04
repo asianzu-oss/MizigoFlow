@@ -11,6 +11,7 @@ const Inventory = () => {
   const [showGRN, setShowGRN] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [search, setSearch] = useState('');
 
   const [productForm, setProductForm] = useState({
     name: '',
@@ -87,6 +88,13 @@ const Inventory = () => {
     }
   };
 
+ const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    (p.sku && p.sku.toLowerCase().includes(search.toLowerCase())) ||
+    (p.category && p.category.toLowerCase().includes(search.toLowerCase())) ||
+    (p.bin_location && p.bin_location.toLowerCase().includes(search.toLowerCase()))
+  );
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -123,6 +131,13 @@ const Inventory = () => {
               </button>
             </div>
           </div>
+          <input
+  type="text"
+  className="input-field max-w-sm"
+  placeholder="Search by name, SKU, category or bin..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
 
           {/* Add Product Form */}
           {showAddProduct && (

@@ -12,6 +12,7 @@ const Orders = () => {
   const [showCreateOrder, setShowCreateOrder] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [search, setSearch] = useState('');
 
   const [orderForm, setOrderForm] = useState({
     order_type: 'delivery',
@@ -99,6 +100,12 @@ const Orders = () => {
     return map[status] || 'badge-info';
   };
 
+  const filtered = orders.filter((o) =>
+  (o.plate_number && o.plate_number.toLowerCase().includes(search.toLowerCase())) ||
+  (o.driver_name && o.driver_name.toLowerCase().includes(search.toLowerCase())) ||
+  (o.order_type && o.order_type.toLowerCase().includes(search.toLowerCase())) ||
+  (o.status && o.status.toLowerCase().includes(search.toLowerCase()))
+);
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -122,6 +129,13 @@ const Orders = () => {
             </button>
           </div>
 
+          <input
+  type="text"
+  className="input-field max-w-sm"
+  placeholder="Search by vehicle, driver, type or status..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
           {/* Create Order Form */}
           {showCreateOrder && (
             <div className="card">
@@ -213,7 +227,7 @@ const Orders = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {filtered.map((order) => (
                     <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-3 px-2 font-medium">#{order.id}</td>
                       <td className="py-3 px-2 capitalize text-gray-600">{order.order_type}</td>

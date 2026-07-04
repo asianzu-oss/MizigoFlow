@@ -11,6 +11,7 @@ const Gate = () => {
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [search, setSearch] = useState('');
 
   const [checkInForm, setCheckInForm] = useState({
     vehicle_id: '',
@@ -70,6 +71,13 @@ const Gate = () => {
     }
   };
 
+  const filtered = gateLogs.filter((log) =>
+  (log.plate_number && log.plate_number.toLowerCase().includes(search.toLowerCase())) ||
+  (log.driver_name && log.driver_name.toLowerCase().includes(search.toLowerCase())) ||
+  (log.purpose && log.purpose.toLowerCase().includes(search.toLowerCase())) ||
+  (log.direction && log.direction.toLowerCase().includes(search.toLowerCase()))
+);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -92,6 +100,14 @@ const Gate = () => {
               + Vehicle Check In
             </button>
           </div>
+
+          <input
+  type="text"
+  className="input-field max-w-sm"
+  placeholder="Search by plate, driver, direction or purpose..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
 
           {/* Check In Form */}
           {showCheckIn && (
@@ -190,7 +206,7 @@ const Gate = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {gateLogs.map((log) => (
+                  {filtered.map((log) => (
                     <tr key={log.id} className="border-b border-gray-50 hover:bg-gray-50">
                       <td className="py-3 px-2 font-medium">{log.plate_number}</td>
                       <td className="py-3 px-2 text-gray-600">{log.driver_name}</td>
